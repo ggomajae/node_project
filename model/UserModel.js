@@ -3,8 +3,8 @@ var Schema = mongoose.Schema;
 var autoIncrement = require('mongoose-auto-increment');
 
 var userSchema = new Schema({
-    name: {type:String},
-    data: {type:Object}
+    name: String,
+    data: Object
 });
 
 

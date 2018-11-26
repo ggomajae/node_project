@@ -9,6 +9,8 @@ var route = require('./router/route.js');
 var user = require('./router/user.js');
 
 
+
+//몽고디비 연결
 var mongoose= require('mongoose');
 mongoose.Promise = global.Promise;
 var autoIncrement = require('mongoose-auto-increment');
@@ -19,7 +21,7 @@ db.once('open',function(){
     console.log('mongodb connect');
 });
 
-var connect = mongoose.connect('mongodb://localhost/mongodb_tutorial');
+var connect = mongoose.connect('mongodb://localhost/mongodb_tutorial',{ useNewUrlParser: true });
 autoIncrement.initialize(mongoose.connection);
 
 
@@ -30,26 +32,29 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine','ejs');
 
 
-
-//게시판전용 라우터
+//미들웨어 셋팅
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({txtended:false}));
+app.use(bodyParser.urlencoded({extended:false}));
 
 //정적파일 지정 미들웨어. 
 app.use('/public',express.static('public'));
+
+//세션사용
+app.use(session({
+    secret : '@#@MYSIGN#@$#$',
+    resave:false,
+    saveUninitialized:true,
+    cookie:{
+        maxAge : 2000 * 60 * 60
+    }
+}));
 
 //기본라우터
 app.use('/', route);
 app.use('/user', user);
 
 
-//세션사용
-app.use(session({
-    secret : '@#@MYSIGN#@$#$',
-    resave:false,
-    saveUninitialized:true
-}));
 
 app.use((req, res, next) => { // 404 처리 부분
     res.status(404).send('일치하는 주소가 없습니다!');
